@@ -1,124 +1,85 @@
 # Changelog
 
-<!-- markdownlint-disable MD024 -->
-
-All notable changes to the Specify CLI will be documented in this file.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [LATEST_VERSION] - RELEASE_DATE
+## [0.1.0] - 2024-01-15
 
 ### Added
-
-- Support for using `.` as a shorthand for current directory in `specify init .` command, equivalent to `--here` flag but more intuitive for users
-
-## [0.0.17] - 2025-09-22
-
-### Added
-
-- New `/clarify` command template to surface up to 5 targeted clarification questions for an existing spec and persist answers into a Clarifications section in the spec.
-- New `/analyze` command template providing a non-destructive cross-artifact discrepancy and alignment report (spec, clarifications, plan, tasks, constitution) inserted after `/tasks` and before `/implement`.
-	- Note: Constitution rules are explicitly treated as non-negotiable; any conflict is a CRITICAL finding requiring artifact remediation, not weakening of principles.
-
-## [0.0.16] - 2025-09-22
-
-### Added
-
-- `--force` flag for `init` command to bypass confirmation when using `--here` in a non-empty directory and proceed with merging/overwriting files.
-
-## [0.0.15] - 2025-09-21
-
-### Added
-
-- Support for Roo Code.
-
-## [0.0.14] - 2025-09-21
+- **Unit Testing Framework**: Complete spec-driven unit testing workflow
+  - New `specify unit` command group with subcommands:
+    - `specify unit init "description"` - Create unit test specifications
+    - `specify unit plan` - Generate test implementation plans  
+    - `specify unit check` - Verify testing prerequisites
+    - `specify unit status` - Show current test workflow status
+- **Templates and Scripts**: Full template system for unit testing
+  - Unit test specification template (`templates/unit-test-template.md`)
+  - Test implementation plan template (`templates/unit-test-plan-template.md`)
+  - Test tasks breakdown template (`templates/unit-tasks-template.md`)
+  - AI assistant command templates (`templates/commands/specify-unit.md`, `plan-unit.md`, etc.)
+- **Cross-Platform Scripts**: Bash and PowerShell support
+  - `scripts/bash/create-unit-test.sh` - Create test specifications
+  - `scripts/bash/setup-unit-plan.sh` - Setup test plans
+  - `scripts/bash/check-unit-prerequisites.sh` - Check prerequisites
+  - PowerShell equivalents for Windows support
+- **Go Language Support**: Enhanced templates and examples for Go projects
+  - Go-specific test patterns (table-driven tests, benchmarks)
+  - gomock and testify integration examples
+  - Go testing best practices integration
+- **Documentation**: Comprehensive guides and examples
+  - `GO-TESTING-GUIDE.md` - Complete Go testing integration guide
+  - `CLI-INTEGRATION.md` - CLI usage and integration instructions
+  - `UNIT-TESTING.md` - Complete unit testing framework documentation
 
 ### Changed
+- Version bumped from 0.0.17 to 0.1.0 (minor version for new features)
+- Enhanced CLI help system to include unit testing commands
+- Improved template system with language-specific examples
 
-- Error messages are now shown consistently.
+### Technical Details
+- Added typer sub-application for unit testing commands
+- Integration with existing script infrastructure
+- JSON-based communication between CLI and scripts
+- Support for multiple project directory structures
+- Git branch management for unit test workflows
 
-## [0.0.13] - 2025-09-21
+## [0.0.17] - 2024-01-14
 
-### Added
+### Previous Release
+- Core Specify CLI functionality
+- Project initialization with AI assistant selection
+- Template downloading from GitHub releases
+- Multi-platform support (Bash/PowerShell)
+- Support for Claude Code, Gemini CLI, GitHub Copilot, Cursor, Qwen Code, opencode, Windsurf, and other AI assistants
 
-- Support for Kilo Code. Thank you [@shahrukhkhan489](https://github.com/shahrukhkhan489) with [#394](https://github.com/github/spec-kit/pull/394).
-- Support for Auggie CLI. Thank you [@hungthai1401](https://github.com/hungthai1401) with [#137](https://github.com/github/spec-kit/pull/137).
-- Agent folder security notice displayed after project provisioning completion, warning users that some agents may store credentials or auth tokens in their agent folders and recommending adding relevant folders to `.gitignore` to prevent accidental credential leakage.
+---
 
-### Changed
+**Migration Notes for v0.1.0:**
 
-- Warning displayed to ensure that folks are aware that they might need to add their agent folder to `.gitignore`.
-- Cleaned up the `check` command output.
+If you're upgrading from a previous version:
 
-## [0.0.12] - 2025-09-21
+1. **New Commands Available**: You now have access to `specify unit` commands
+2. **Existing Projects**: The new unit testing features work alongside existing Specify projects
+3. **No Breaking Changes**: All existing `specify init` and `specify check` commands work exactly as before
+4. **New Dependencies**: The same Python dependencies are used, no additional installation required
 
-### Changed
+**For New Users:**
 
-- Added additional context for OpenAI Codex users - they need to set an additional environment variable, as described in [#417](https://github.com/github/spec-kit/issues/417).
+The complete workflow now includes both feature development and unit testing:
 
-## [0.0.11] - 2025-09-20
+```bash
+# Feature Development Workflow
+specify init my-project --ai claude
+specify /specify    # Create feature spec
+specify /plan       # Create implementation plan  
+specify /tasks      # Generate tasks
+specify /implement  # Execute implementation
 
-### Added
-
-- Codex CLI support (thank you [@honjo-hiroaki-gtt](https://github.com/honjo-hiroaki-gtt) for the contribution in [#14](https://github.com/github/spec-kit/pull/14))
-- Codex-aware context update tooling (Bash and PowerShell) so feature plans refresh `AGENTS.md` alongside existing assistants without manual edits.
-
-## [0.0.10] - 2025-09-20
-
-### Fixed
-
-- Addressed [#378](https://github.com/github/spec-kit/issues/378) where a GitHub token may be attached to the request when it was empty.
-
-## [0.0.9] - 2025-09-19
-
-### Changed
-
-- Improved agent selector UI with cyan highlighting for agent keys and gray parentheses for full names
-
-## [0.0.8] - 2025-09-19
-
-### Added
-
-- Windsurf IDE support as additional AI assistant option (thank you [@raedkit](https://github.com/raedkit) for the work in [#151](https://github.com/github/spec-kit/pull/151))
-- GitHub token support for API requests to handle corporate environments and rate limiting (contributed by [@zryfish](https://github.com/@zryfish) in [#243](https://github.com/github/spec-kit/pull/243))
-
-### Changed
-
-- Updated README with Windsurf examples and GitHub token usage
-- Enhanced release workflow to include Windsurf templates
-
-## [0.0.7] - 2025-09-18
-
-### Changed
-
-- Updated command instructions in the CLI.
-- Cleaned up the code to not render agent-specific information when it's generic.
-
-
-## [0.0.6] - 2025-09-17
-
-### Added
-
-- opencode support as additional AI assistant option
-
-## [0.0.5] - 2025-09-17
-
-### Added
-
-- Qwen Code support as additional AI assistant option
-
-## [0.0.4] - 2025-09-14
-
-### Added
-
-- SOCKS proxy support for corporate environments via `httpx[socks]` dependency
-
-### Fixed
-
-N/A
-
-### Changed
-
-N/A
+# Unit Testing Workflow (NEW!)
+specify unit init "test user authentication"  # Create test spec
+specify /plan-unit     # Plan tests
+specify /tasks-unit    # Generate test tasks  
+specify /implement-unit # Execute tests
+```

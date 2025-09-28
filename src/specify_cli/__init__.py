@@ -313,6 +313,12 @@ app = typer.Typer(
     cls=BannerGroup,
 )
 
+# Create a sub-app for unit testing commands
+unit_app = typer.Typer(
+    name="unit",
+    help="Unit testing workflow commands for spec-driven unit test development",
+)
+
 
 def show_banner():
     """Display the ASCII art banner."""
@@ -1142,6 +1148,205 @@ def check():
     if not (claude_ok or gemini_ok or cursor_ok or qwen_ok or windsurf_ok or kilocode_ok or opencode_ok or codex_ok or auggie_ok):
         console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
 
+
+# Add the unit sub-app to main app
+app.add_typer(unit_app, name="unit")
+
+@unit_app.command("init")
+def unit_init(
+    test_description: str = typer.Argument(..., help="Description of what to test (e.g., 'test user authentication with validation')"),
+    project_dir: str = typer.Option(".", "--dir", help="Project directory (default: current directory)"),
+):
+    """Initialize a new unit test specification using the specify-unit workflow."""
+    import subprocess
+    import os
+    from pathlib import Path
+    
+    project_path = Path(project_dir).resolve()
+    if not project_path.exists():
+        console.print(f"[red]Error:[/red] Directory {project_path} does not exist")
+        raise typer.Exit(1)
+    
+    # Change to project directory
+    original_dir = Path.cwd()
+    try:
+        os.chdir(project_path)
+        
+        console.print("[cyan]Creating unit test specification...[/cyan]")
+        console.print(f"[dim]Description: {test_description}[/dim]")
+        
+        # Check for script existence
+        script_path = project_path / "scripts" / "bash" / "create-unit-test.sh"
+        if not script_path.exists():
+            console.print(f"[red]Error:[/red] Unit test script not found at {script_path}")
+            console.print("[yellow]Make sure you're in a Specify project directory with unit testing support[/yellow]")
+            raise typer.Exit(1)
+        
+        # Run the create-unit-test script
+        cmd = [str(script_path), "--json"] + test_description.split()
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            console.print(f"[red]Error creating unit test:[/red] {result.stderr}")
+            raise typer.Exit(1)
+        
+        # Parse JSON output
+        import json
+        try:
+            output = json.loads(result.stdout)
+            branch_name = output["BRANCH_NAME"]
+            test_spec_file = output["TEST_SPEC_FILE"]
+            test_num = output["TEST_NUM"]
+            
+            console.print(f"[green]✓[/green] Unit test specification created:")
+            console.print(f"  Branch: [cyan]{branch_name}[/cyan]")
+            console.print(f"  Spec file: [dim]{test_spec_file}[/dim]")
+            console.print(f"  Test number: {test_num}")
+            
+            console.print("\n[bold]Next steps:[/bold]")
+            console.print("1. [cyan]/plan-unit[/cyan] - Plan the test implementation")
+            console.print("2. [cyan]/tasks-unit[/cyan] - Break down into tasks")
+            console.print("3. [cyan]/implement-unit[/cyan] - Execute the tests")
+            
+        except (json.JSONDecodeError, KeyError) as e:
+            console.print(f"[red]Error parsing output:[/red] {e}")
+            console.print(f"Raw output: {result.stdout}")
+            raise typer.Exit(1)
+            
+    finally:
+        os.chdir(original_dir)
+
+@unit_app.command("plan")
+def unit_plan(
+    project_dir: str = typer.Option(".", "--dir", help="Project directory (default: current directory)"),
+):
+    """Create a test implementation plan for the current unit test specification."""
+    import subprocess
+    import os
+    from pathlib import Path
+    
+    project_path = Path(project_dir).resolve()
+    original_dir = Path.cwd()
+    
+    try:
+        os.chdir(project_path)
+        
+        console.print("[cyan]Creating unit test implementation plan...[/cyan]")
+        
+        script_path = project_path / "scripts" / "bash" / "setup-unit-plan.sh"
+        if not script_path.exists():
+            console.print(f"[red]Error:[/red] Unit plan script not found at {script_path}")
+            raise typer.Exit(1)
+        
+        result = subprocess.run([str(script_path), "--json"], capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            console.print(f"[red]Error creating unit plan:[/red] {result.stderr}")
+            raise typer.Exit(1)
+        
+        import json
+        try:
+            output = json.loads(result.stdout)
+            test_plan_file = output["TEST_PLAN"]
+            branch = output["BRANCH"]
+            
+            console.print(f"[green]✓[/green] Test implementation plan created:")
+            console.print(f"  Branch: [cyan]{branch}[/cyan]")
+            console.print(f"  Plan file: [dim]{test_plan_file}[/dim]")
+            
+        except (json.JSONDecodeError, KeyError) as e:
+            console.print(f"[red]Error parsing output:[/red] {e}")
+            raise typer.Exit(1)
+            
+    finally:
+        os.chdir(original_dir)
+
+@unit_app.command("check")
+def unit_check(
+    project_dir: str = typer.Option(".", "--dir", help="Project directory (default: current directory)"),
+    require_tasks: bool = typer.Option(False, "--require-tasks", help="Require test-tasks.md to exist"),
+):
+    """Check prerequisites for unit testing workflow."""
+    import subprocess
+    import os
+    from pathlib import Path
+    
+    project_path = Path(project_dir).resolve()
+    original_dir = Path.cwd()
+    
+    try:
+        os.chdir(project_path)
+        
+        console.print("[bold]Checking unit testing prerequisites...[/bold]\n")
+        
+        script_path = project_path / "scripts" / "bash" / "check-unit-prerequisites.sh"
+        if not script_path.exists():
+            console.print(f"[red]Error:[/red] Unit check script not found at {script_path}")
+            console.print("[yellow]Make sure you're in a Specify project directory with unit testing support[/yellow]")
+            raise typer.Exit(1)
+        
+        cmd = [str(script_path)]
+        if require_tasks:
+            cmd.append("--require-tasks")
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            console.print(f"[red]Prerequisites check failed:[/red]")
+            console.print(result.stderr)
+            raise typer.Exit(1)
+        
+        # Display the output
+        console.print(result.stdout)
+        console.print("\n[green]Unit testing prerequisites satisfied![/green]")
+        
+    finally:
+        os.chdir(original_dir)
+
+@unit_app.command("status") 
+def unit_status(
+    project_dir: str = typer.Option(".", "--dir", help="Project directory (default: current directory)"),
+):
+    """Show status of current unit testing workflow."""
+    from pathlib import Path
+    import subprocess
+    import os
+    
+    project_path = Path(project_dir).resolve()
+    
+    # Check if we're in a unit test branch
+    try:
+        os.chdir(project_path)
+        result = subprocess.run(["git", "branch", "--show-current"], capture_output=True, text=True)
+        if result.returncode == 0:
+            current_branch = result.stdout.strip()
+            if current_branch.startswith(tuple(f"{i:03d}-unit-" for i in range(1000))):
+                console.print(f"[green]✓[/green] On unit test branch: [cyan]{current_branch}[/cyan]")
+                
+                # Check for test files
+                tests_dir = project_path / "tests" / current_branch
+                if tests_dir.exists():
+                    test_files = []
+                    if (tests_dir / "test-spec.md").exists():
+                        test_files.append("test-spec.md ✓")
+                    if (tests_dir / "test-plan.md").exists():
+                        test_files.append("test-plan.md ✓")
+                    if (tests_dir / "test-tasks.md").exists():
+                        test_files.append("test-tasks.md ✓")
+                    
+                    if test_files:
+                        console.print("\n[bold]Available test documents:[/bold]")
+                        for file in test_files:
+                            console.print(f"  - {file}")
+                    
+                    console.print(f"\n[dim]Test directory: {tests_dir}[/dim]")
+            else:
+                console.print(f"[yellow]Not on a unit test branch[/yellow] (current: {current_branch})")
+                console.print("[dim]Use 'specify unit init' to create a unit test specification[/dim]")
+        else:
+            console.print("[yellow]Not in a git repository[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Error checking status:[/red] {e}")
 
 def main():
     app()
