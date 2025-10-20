@@ -65,6 +65,7 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
     return {"Authorization": f"Bearer {token}"} if token else {}
 
 # Constants
+VERSION = "1.0.6"
 AI_CHOICES = {
     "copilot": "GitHub Copilot",
     "claude": "Claude Code",
@@ -821,6 +822,10 @@ def init(
     """
     # Show banner first
     show_banner()
+    
+    # Show version info
+    console.print(f"[dim]Specify CLI version {VERSION}[/dim]")
+    console.print()
     
     # Handle '.' as shorthand for current directory (equivalent to --here)
     if project_name == ".":
