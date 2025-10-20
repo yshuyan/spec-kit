@@ -36,8 +36,19 @@ echo ""
 if [ ! -d ".genreleases" ]; then
     echo -e "${RED}错误: .genreleases 目录不存在${NC}"
     echo -e "${YELLOW}提示: 先运行打包脚本${NC}"
-    echo "  /bin/bash .github/workflows/scripts/create-release-packages.sh v1.0.1"
-    exit 1
+    echo "  /bin/bash .github/workflows/scripts/create-release-packages.sh $VERSION"
+    echo ""
+    read -p "是否现在运行打包脚本？(y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${CYAN}运行打包脚本...${NC}"
+        # Ensure source scripts have execute permissions before packaging
+        chmod +x scripts/bash/*.sh 2>/dev/null || true
+        /bin/bash .github/workflows/scripts/create-release-packages.sh "$VERSION"
+        echo ""
+    else
+        exit 1
+    fi
 fi
 
 ZIP_COUNT=$(ls .genreleases/*.zip 2>/dev/null | wc -l)

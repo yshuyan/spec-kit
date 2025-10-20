@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-10-20
+
+### Fixed
+- **Script Permissions**: Fixed bash scripts missing executable permissions
+  - Added automatic `chmod +x` in release packaging script
+  - Ensures all bash scripts have execute permissions before and after packaging
+  - Prevents "permission denied" errors when running scripts directly
+- **Packaging Script**: Enhanced `.github/workflows/scripts/create-release-packages.sh`
+  - Now ensures source scripts have execute permissions before copying
+  - Double-checks destination scripts also have execute permissions
+  - Eliminates permission issues in deployed projects
+
+### Changed
+- **Release Process**: Both `create-release.sh` and packaging script now set proper permissions
+- **Error Prevention**: Scripts will work correctly even if git doesn't track file permissions
+
 ## [1.0.2] - 2025-10-20
 
 ### Fixed
