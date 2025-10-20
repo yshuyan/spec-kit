@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-10-20
+
+### Fixed
+- **Script Permission Detection**: Fixed `ensure_executable_scripts()` to check both `.specify/scripts` and `scripts/` directories
+  - Previously only checked `.specify/scripts/`, missing the main `scripts/bash/` directory
+  - Now properly sets execute permissions for all bash scripts after extraction
+  - Fixes issue where scripts had correct permissions in ZIP but lost them after `specify init`
+
+### Changed
+- **Permission Verification**: Added total script count to permission tracking
+- **Error Handling**: Improved error reporting with relative paths
+
 ## [1.0.3] - 2025-10-20
 
 ### Fixed

@@ -439,10 +439,9 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(original_cwd)
 
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None, repo_owner: str = None, repo_name: str = None) -> Tuple[Path, dict]:
-    # Allow custom repository, default to official spec-kit
-    repo_owner = repo_owner or os.getenv("SPECIFY_REPO_OWNER") or "github"
-    repo_name = repo_name or os.getenv("SPECIFY_REPO_NAME") or "spec-kit"
+def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
+    repo_owner = "github"
+    repo_name = "spec-kit"
     if client is None:
         client = httpx.Client(verify=ssl_context)
     
@@ -552,7 +551,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     return zip_path, metadata
 
 
-def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None, repo_owner: str = None, repo_name: str = None) -> Path:
+def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Path:
     """Download the latest release and extract it to create a new project.
     Returns project_path. Uses tracker if provided (with keys: fetch, download, extract, cleanup)
     """
@@ -570,9 +569,7 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             show_progress=(tracker is None),
             client=client,
             debug=debug,
-            github_token=github_token,
-            repo_owner=repo_owner,
-            repo_name=repo_name
+            github_token=github_token
         )
         if tracker:
             tracker.complete("fetch", f"release {meta['release']} ({meta['size']:,} bytes)")
@@ -713,63 +710,44 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
 
 
 def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = None) -> None:
-    """Ensure POSIX .sh scripts under scripts/ directories have execute bits (no-op on Windows)."""
+    """Ensure POSIX .sh scripts under .specify/scripts (recursively) have execute bits (no-op on Windows)."""
     if os.name == "nt":
         return  # Windows: skip silently
-    
-    # Check both .specify/scripts and scripts/ directories
-    script_dirs = [
-        project_path / ".specify" / "scripts",
-        project_path / "scripts"
-    ]
-    
+    scripts_root = project_path / ".specify" / "scripts"
+    if not scripts_root.is_dir():
+        return
     failures: list[str] = []
     updated = 0
-    total_checked = 0
-    
-    for scripts_root in script_dirs:
-        if not scripts_root.is_dir():
-            continue
-            
-        for script in scripts_root.rglob("*.sh"):
-            total_checked += 1
+    for script in scripts_root.rglob("*.sh"):
+        try:
+            if script.is_symlink() or not script.is_file():
+                continue
             try:
-                if script.is_symlink() or not script.is_file():
-                    continue
-                try:
-                    with script.open("rb") as f:
-                        if f.read(2) != b"#!":
-                            continue
-                except Exception:
-                    continue
-                st = script.stat(); mode = st.st_mode
-                if mode & 0o111:
-                    continue  # Already executable
-                new_mode = mode
-                if mode & 0o400: new_mode |= 0o100
-                if mode & 0o040: new_mode |= 0o010
-                if mode & 0o004: new_mode |= 0o001
-                if not (new_mode & 0o100):
-                    new_mode |= 0o100
-                os.chmod(script, new_mode)
-                updated += 1
-            except Exception as e:
-                try:
-                    rel_path = script.relative_to(project_path)
-                except ValueError:
-                    rel_path = script.name
-                failures.append(f"{rel_path}: {e}")
-    
+                with script.open("rb") as f:
+                    if f.read(2) != b"#!":
+                        continue
+            except Exception:
+                continue
+            st = script.stat(); mode = st.st_mode
+            if mode & 0o111:
+                continue
+            new_mode = mode
+            if mode & 0o400: new_mode |= 0o100
+            if mode & 0o040: new_mode |= 0o010
+            if mode & 0o004: new_mode |= 0o001
+            if not (new_mode & 0o100):
+                new_mode |= 0o100
+            os.chmod(script, new_mode)
+            updated += 1
+        except Exception as e:
+            failures.append(f"{script.relative_to(scripts_root)}: {e}")
     if tracker:
-        if total_checked == 0:
-            tracker.skip("chmod", "no scripts found")
-        else:
-            detail = f"{updated} updated" + (f", {len(failures)} failed" if failures else "")
-            tracker.add("chmod", "Set script permissions")
-            (tracker.error if failures else tracker.complete)("chmod", detail)
+        detail = f"{updated} updated" + (f", {len(failures)} failed" if failures else "")
+        tracker.add("chmod", "Set script permissions recursively")
+        (tracker.error if failures else tracker.complete)("chmod", detail)
     else:
         if updated:
-            console.print(f"[cyan]Updated execute permissions on {updated} script(s)[/cyan]")
+            console.print(f"[cyan]Updated execute permissions on {updated} script(s) recursively[/cyan]")
         if failures:
             console.print("[yellow]Some scripts could not be updated:[/yellow]")
             for f in failures:
@@ -787,7 +765,6 @@ def init(
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
-    repo: str = typer.Option(None, "--repo", help="Custom GitHub repository in format 'owner/repo' (default: github/spec-kit, or set SPECIFY_REPO env var)"),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -969,23 +946,6 @@ def init(
     console.print(f"[cyan]Selected AI assistant:[/cyan] {selected_ai}")
     console.print(f"[cyan]Selected script type:[/cyan] {selected_script}")
     
-    # Parse custom repository if provided
-    custom_repo_owner = None
-    custom_repo_name = None
-    if repo:
-        repo_parts = repo.split('/')
-        if len(repo_parts) != 2:
-            console.print(f"[red]Error:[/red] Repository must be in format 'owner/repo', got: {repo}")
-            raise typer.Exit(1)
-        custom_repo_owner, custom_repo_name = repo_parts
-        console.print(f"[cyan]Using custom repository:[/cyan] {repo}")
-    elif os.getenv("SPECIFY_REPO"):
-        repo_env = os.getenv("SPECIFY_REPO")
-        repo_parts = repo_env.split('/')
-        if len(repo_parts) == 2:
-            custom_repo_owner, custom_repo_name = repo_parts
-            console.print(f"[cyan]Using repository from SPECIFY_REPO:[/cyan] {repo_env}")
-    
     # Download and set up project
     # New tree-based progress (no emojis); include earlier substeps
     tracker = StepTracker("Initialize Specify Project")
@@ -1020,7 +980,7 @@ def init(
             local_ssl_context = ssl_context if verify else False
             local_client = httpx.Client(verify=local_ssl_context)
 
-            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token, repo_owner=custom_repo_owner, repo_name=custom_repo_name)
+            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
             # Ensure scripts are executable (POSIX)
             ensure_executable_scripts(project_path, tracker=tracker)

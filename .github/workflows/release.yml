@@ -2,58 +2,115 @@ name: Create Release
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'memory/**'
-      - 'scripts/**'
-      - 'templates/**'
-      - '.github/workflows/**'
-  workflow_dispatch:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get latest tag
-        id: get_tag
-        run: |
-          chmod +x .github/workflows/scripts/get-next-version.sh
-          .github/workflows/scripts/get-next-version.sh
-      - name: Check if release already exists
-        id: check_release
-        run: |
-          chmod +x .github/workflows/scripts/check-release-exists.sh
-          .github/workflows/scripts/check-release-exists.sh ${{ steps.get_tag.outputs.new_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create release package variants
-        if: steps.check_release.outputs.exists == 'false'
+
+      - name: Create release packages
         run: |
           chmod +x .github/workflows/scripts/create-release-packages.sh
-          .github/workflows/scripts/create-release-packages.sh ${{ steps.get_tag.outputs.new_version }}
-      - name: Generate release notes
-        if: steps.check_release.outputs.exists == 'false'
-        id: release_notes
-        run: |
-          chmod +x .github/workflows/scripts/generate-release-notes.sh
-          .github/workflows/scripts/generate-release-notes.sh ${{ steps.get_tag.outputs.new_version }} ${{ steps.get_tag.outputs.latest_tag }}
-      - name: Create GitHub Release
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          chmod +x .github/workflows/scripts/create-github-release.sh
-          .github/workflows/scripts/create-github-release.sh ${{ steps.get_tag.outputs.new_version }}
+          .github/workflows/scripts/create-release-packages.sh ${{ github.ref_name }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: .genreleases/*.zip
+          body: |
+            ## 🎉 Spec Kit Release ${{ github.ref_name }}
+
+            ### 📦 包含的 AI Agents
+            
+            所有主流 AI 编码助手都已支持：
+            
+            - 🤖 Claude Code
+            - 🤖 GitHub Copilot
+            - 🤖 Cursor
+            - 🤖 Gemini CLI
+            - 🤖 Qwen Code
+            - 🤖 opencode
+            - 🤖 Windsurf
+            - 🤖 Codex CLI
+            - 🤖 Kilo Code
+            - 🤖 Auggie CLI
+            - 🤖 Roo Code
+            
+            每个 agent 都有 Bash (sh) 和 PowerShell (ps) 两个版本。
+
+            ### 🚀 使用方法
+
+            #### 初始化新项目
+            
+            ```bash
+            # 使用默认仓库 (github/spec-kit)
+            specify init my-project --ai claude
+            
+            # 使用自定义仓库
+            specify init my-project --ai claude --repo your-username/spec-kit
+            
+            # 或使用环境变量
+            export SPECIFY_REPO="your-username/spec-kit"
+            specify init my-project --ai claude
+            ```
+
+            #### Unit Testing 支持
+            
+            ```bash
+            cd my-project
+            
+            # 创建单元测试规范
+            /specify-unit test user authentication with validation
+            
+            # 创建测试计划
+            /plan-unit
+            
+            # 生成测试任务
+            /tasks-unit
+            
+            # 执行测试实施
+            /implement-unit
+            ```
+
+            ### ✨ 功能特性
+            
+            - ✅ **完整的 Spec-Driven Development 工作流**
+              - `/specify` - 创建功能规范
+              - `/plan` - 创建实施计划
+              - `/tasks` - 生成任务列表
+              - `/implement` - 执行实施
+            
+            - ✅ **Unit Testing 工作流**
+              - `/specify-unit` - 创建测试规范
+              - `/plan-unit` - 创建测试计划
+              - `/tasks-unit` - 生成测试任务
+              - `/implement-unit` - 执行测试实施
+            
+            - ✅ **多语言支持**
+              - Python, JavaScript/TypeScript, Java, Go, Swift 等
+              - 支持主流测试框架
+
+            ### 📚 文档
+            
+            - [README](https://github.com/${{ github.repository }}/blob/main/README.md)
+            - [Unit Testing 指南](https://github.com/${{ github.repository }}/blob/main/UNIT-TESTING.md)
+            - [Spec-Driven Development](https://github.com/${{ github.repository }}/blob/main/spec-driven.md)
+            
+            ---
+            
+            **发布日期**: ${{ github.event.head_commit.timestamp }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Update version in pyproject.toml (for release artifacts only)
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          chmod +x .github/workflows/scripts/update-version.sh
-          .github/workflows/scripts/update-version.sh ${{ steps.get_tag.outputs.new_version }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-packages
+          path: .genreleases/*.zip
