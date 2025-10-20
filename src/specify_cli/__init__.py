@@ -65,7 +65,7 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
     return {"Authorization": f"Bearer {token}"} if token else {}
 
 # Constants
-VERSION = "1.0.8"
+VERSION = "1.0.9"
 AI_CHOICES = {
     "copilot": "GitHub Copilot",
     "claude": "Claude Code",

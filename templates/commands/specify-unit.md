@@ -21,9 +21,15 @@ Given that unit test description, do this:
    **IMPORTANT**: You must pass the test description as an argument to the script. 
    **Example**: If user said "test user authentication", run: `bash scripts/bash/create-unit-test.sh --json "test user authentication"`
    
-2. Load `.specify/templates/unit-test-template.md` to understand required sections.
+2. Load `.specify/templates/unit-test-template.md` to understand the required structure and sections **only**.
 
-3. **Write the unit test specification in Chinese (中文)** to TEST_SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the test description (arguments) while preserving section order and headings. All content should be in Chinese.
+3. **Write the unit test specification in Chinese (中文)** to TEST_SPEC_FILE:
+   - **DO NOT copy the template content directly**
+   - **Generate completely new Chinese content** based on the test description
+   - Keep the section headings and structure from the template
+   - Replace ALL placeholders and example content with Chinese descriptions
+   - Write all sections (目标, 测试场景, 测试要求, etc.) in Chinese
+   - All content should be in Chinese including comments, descriptions, and documentation
 
 4. Report completion with branch name, test spec file path, and readiness for test implementation.
 

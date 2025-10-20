@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2025-10-20
+
+### Fixed
+- **Chinese Content Generation**: Enhanced specify-unit command to ensure generated content is in Chinese
+  - Added explicit instructions to NOT copy template content directly
+  - Instructs AI to generate completely new Chinese content
+  - Emphasizes replacing ALL placeholders with Chinese descriptions
+  - Ensures all sections are written in Chinese
+
+### Changed
+- **Content Quality**: Improved guidance for generating Chinese documentation from user input
+
 ## [1.0.8] - 2025-10-20
 
 ### Fixed
