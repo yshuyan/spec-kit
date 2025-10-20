@@ -88,7 +88,7 @@ fi
 mkdir -p "$TEST_DIR"
 
 # Copy unit test plan template if it exists
-TEMPLATE="$REPO_ROOT/templates/unit-test-plan-template.md"
+TEMPLATE="$REPO_ROOT/.specify/templates/unit-test-plan-template.md"
 if [[ -f "$TEMPLATE" ]]; then
     cp "$TEMPLATE" "$TEST_PLAN"
     if ! $JSON_MODE; then

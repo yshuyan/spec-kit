@@ -80,7 +80,7 @@ fi
 TEST_DIR="$TESTS_DIR/$BRANCH_NAME"
 mkdir -p "$TEST_DIR"
 
-TEMPLATE="$REPO_ROOT/templates/unit-test-template.md"
+TEMPLATE="$REPO_ROOT/.specify/templates/unit-test-template.md"
 TEST_SPEC_FILE="$TEST_DIR/test-spec.md"
 if [ -f "$TEMPLATE" ]; then cp "$TEMPLATE" "$TEST_SPEC_FILE"; else touch "$TEST_SPEC_FILE"; fi
 

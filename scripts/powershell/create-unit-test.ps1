@@ -89,7 +89,7 @@ if ($hasGit) {
 $testDir = Join-Path $testsDir $branchName
 New-Item -ItemType Directory -Path $testDir -Force | Out-Null
 
-$template = Join-Path $repoRoot 'templates/unit-test-template.md'
+$template = Join-Path $repoRoot '.specify/templates/unit-test-template.md'
 $testSpecFile = Join-Path $testDir 'test-spec.md'
 if (Test-Path $template) { 
     Copy-Item $template $testSpecFile -Force 

@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-10-20
+
+### Fixed
+- **Unit Test Scripts Template Paths**: Fixed incorrect template paths in unit test scripts
+  - `scripts/bash/create-unit-test.sh`: Updated to use `.specify/templates/unit-test-template.md`
+  - `scripts/bash/setup-unit-plan.sh`: Updated to use `.specify/templates/unit-test-plan-template.md`
+  - `scripts/powershell/create-unit-test.ps1`: Updated to use `.specify/templates/unit-test-template.md`
+  - `scripts/powershell/setup-unit-plan.ps1`: Updated to use `.specify/templates/unit-test-plan-template.md`
+  - These scripts were incorrectly looking for templates in `templates/` instead of `.specify/templates/`
+  - This caused `/specify-unit` command to fail with "Error reading file" for templates
+
+## [1.0.1] - 2025-10-20
+
+### Fixed
+- **Template Files Missing**: Fixed critical issue where `specify init` did not copy template files to project's `.specify/templates/` directory
+  - This caused `/specify-unit` and other commands to fail when looking for templates
+  - Now all 7 template files are properly included in release packages
+- **Release Package Script**: Created comprehensive packaging script to generate release packages for all AI agents
+  - Supports 11 AI agents: claude, gemini, copilot, cursor, qwen, opencode, codex, windsurf, kilocode, auggie, roo
+  - Generates both bash and PowerShell variants (22 packages total)
+  - Ensures all template files are included in each package
+
+### Added
+- **Automated Packaging**: `.github/workflows/scripts/create-release-packages.sh`
+  - Generates release packages for all supported AI agents
+  - Properly includes all template files in `.specify/templates/`
+  - Creates correct directory structure for each agent
+- **GitHub Actions Workflow**: `.github/workflows/release.yml`
+  - Automatically creates releases when tags are pushed
+  - Uploads all 22 release packages to GitHub releases
+- **Quick Fix Tool**: `fix-templates.sh`
+  - One-command solution to fix existing projects missing template files
+  - Copies all necessary templates from spec-kit to target project
+- **Documentation**: 
+  - `TEMPLATE-FIX.md` - Comprehensive guide for the template fix
+  - `TEMPLATE-FIX-COMPLETION.md` - Technical completion report
+
+### Changed
+- **Release Script Enhancement**: `create-release.sh` now checks for packages and offers to run packaging script automatically
+- **Package Contents**: All release packages now include:
+  - 7 template files (spec, plan, tasks, unit-test, unit-test-plan, unit-tasks, agent-file)
+  - Complete directory structure (.specify/, tests/, memory/)
+  - Agent-specific command files and rules
+  - Cross-platform scripts (bash/powershell)
+
+### Technical Details
+- Fixed bash compatibility issue (removed `local -A` for macOS bash 3.x support)
+- Improved script path resolution (uses `bash/` and `powershell/` directories correctly)
+- Enhanced error handling in packaging script
+- Added comprehensive validation and testing
+
+## [1.0.0] - 2025-10-19
+
+### Changed
+- Stable release with full unit testing support
+- All features from 0.1.0 promoted to stable
+
 ## [0.1.0] - 2024-01-15
 
 ### Added

@@ -82,7 +82,7 @@ if (-not (Test-Path $testSpecFile)) {
 New-Item -ItemType Directory -Path $testDir -Force | Out-Null
 
 # Copy unit test plan template if it exists
-$template = Join-Path $repoRoot 'templates/unit-test-plan-template.md'
+$template = Join-Path $repoRoot '.specify/templates/unit-test-plan-template.md'
 if (Test-Path $template) { 
     Copy-Item $template $testPlan -Force 
     if (-not $Json) {
