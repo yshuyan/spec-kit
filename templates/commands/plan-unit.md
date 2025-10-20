@@ -5,6 +5,8 @@ scripts:
   ps: scripts/powershell/setup-unit-plan.ps1 -Json
 ---
 
+**IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**
+
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
 User input:
@@ -25,18 +27,19 @@ Given the test implementation details provided as an argument, do this:
 
 3. Read the constitution at `/memory/constitution.md` to understand constitutional requirements for testing.
 
-4. Execute the unit test plan template:
+4. **Execute the unit test plan template and write all content in Chinese (中文)**:
    - Load `/templates/unit-test-plan-template.md` (already copied to TEST_PLAN path)
    - Set Input path to TEST_SPEC_FILE
    - Run the Execution Flow (main) function steps 1-9
    - The template is self-contained and executable
    - Follow error handling and gate checks as specified
    - Let the template guide test artifact generation in $TESTS_DIR:
-     * Phase 0 generates test-strategy.md
-     * Phase 1 generates test-data.md, mocks/, test-setup.md
-     * Phase 2 generates test-tasks.md
+     * Phase 0 generates test-strategy.md (in Chinese)
+     * Phase 1 generates test-data.md, mocks/, test-setup.md (in Chinese)
+     * Phase 2 generates test-tasks.md (in Chinese)
    - Incorporate user-provided details from arguments into Test Technical Context: {ARGS}
    - Update Progress Tracking as you complete each phase
+   - **All generated content must be in Chinese**
 
 5. Verify execution completed:
    - Check Progress Tracking shows all phases complete

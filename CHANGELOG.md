@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2025-10-20
+
+### Added
+- **Chinese Language Support**: All command files now instruct AI to generate documentation in Chinese (简体中文)
+  - Added language instruction to all workflow commands
+  - `/specify-unit`, `/plan-unit`, `/tasks-unit`, `/implement-unit` now generate Chinese docs
+  - `/specify`, `/plan`, `/tasks`, `/implement` now generate Chinese docs
+  - Ensures consistent Chinese output for all generated documentation
+
+### Changed
+- **Command Templates**: Enhanced all command templates with explicit Chinese language directive
+- **Documentation Quality**: Improved clarity by specifying language at the beginning of each command
+
 ## [1.0.6] - 2025-10-20
 
 ### Added

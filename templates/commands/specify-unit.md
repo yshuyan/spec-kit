@@ -5,6 +5,8 @@ scripts:
   ps: scripts/powershell/create-unit-test.ps1 -Json "{ARGS}"
 ---
 
+**IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**
+
 The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
 User input:
@@ -20,7 +22,7 @@ Given that unit test description, do this:
    
 2. Load `.specify/templates/unit-test-template.md` to understand required sections.
 
-3. Write the unit test specification to TEST_SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the test description (arguments) while preserving section order and headings.
+3. **Write the unit test specification in Chinese (中文)** to TEST_SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the test description (arguments) while preserving section order and headings. All content should be in Chinese.
 
 4. Report completion with branch name, test spec file path, and readiness for test implementation.
 

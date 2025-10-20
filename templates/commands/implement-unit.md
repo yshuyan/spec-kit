@@ -5,6 +5,8 @@ scripts:
   ps: scripts/powershell/check-unit-prerequisites.ps1 -Json -RequireTasks -IncludeTasks
 ---
 
+**IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**
+
 The user input can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
 User input:
