@@ -439,9 +439,10 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(original_cwd)
 
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
-    repo_owner = "github"
-    repo_name = "spec-kit"
+def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None, repo_owner: str = None, repo_name: str = None) -> Tuple[Path, dict]:
+    # Allow custom repository, default to official spec-kit
+    repo_owner = repo_owner or os.getenv("SPECIFY_REPO_OWNER") or "github"
+    repo_name = repo_name or os.getenv("SPECIFY_REPO_NAME") or "spec-kit"
     if client is None:
         client = httpx.Client(verify=ssl_context)
     
@@ -551,7 +552,7 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
     return zip_path, metadata
 
 
-def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Path:
+def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None, repo_owner: str = None, repo_name: str = None) -> Path:
     """Download the latest release and extract it to create a new project.
     Returns project_path. Uses tracker if provided (with keys: fetch, download, extract, cleanup)
     """
@@ -569,7 +570,9 @@ def download_and_extract_template(project_path: Path, ai_assistant: str, script_
             show_progress=(tracker is None),
             client=client,
             debug=debug,
-            github_token=github_token
+            github_token=github_token,
+            repo_owner=repo_owner,
+            repo_name=repo_name
         )
         if tracker:
             tracker.complete("fetch", f"release {meta['release']} ({meta['size']:,} bytes)")
@@ -765,6 +768,7 @@ def init(
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    repo: str = typer.Option(None, "--repo", help="Custom GitHub repository in format 'owner/repo' (default: github/spec-kit, or set SPECIFY_REPO env var)"),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -946,6 +950,23 @@ def init(
     console.print(f"[cyan]Selected AI assistant:[/cyan] {selected_ai}")
     console.print(f"[cyan]Selected script type:[/cyan] {selected_script}")
     
+    # Parse custom repository if provided
+    custom_repo_owner = None
+    custom_repo_name = None
+    if repo:
+        repo_parts = repo.split('/')
+        if len(repo_parts) != 2:
+            console.print(f"[red]Error:[/red] Repository must be in format 'owner/repo', got: {repo}")
+            raise typer.Exit(1)
+        custom_repo_owner, custom_repo_name = repo_parts
+        console.print(f"[cyan]Using custom repository:[/cyan] {repo}")
+    elif os.getenv("SPECIFY_REPO"):
+        repo_env = os.getenv("SPECIFY_REPO")
+        repo_parts = repo_env.split('/')
+        if len(repo_parts) == 2:
+            custom_repo_owner, custom_repo_name = repo_parts
+            console.print(f"[cyan]Using repository from SPECIFY_REPO:[/cyan] {repo_env}")
+    
     # Download and set up project
     # New tree-based progress (no emojis); include earlier substeps
     tracker = StepTracker("Initialize Specify Project")
@@ -980,7 +1001,7 @@ def init(
             local_ssl_context = ssl_context if verify else False
             local_client = httpx.Client(verify=local_ssl_context)
 
-            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
+            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token, repo_owner=custom_repo_owner, repo_name=custom_repo_name)
 
             # Ensure scripts are executable (POSIX)
             ensure_executable_scripts(project_path, tracker=tracker)

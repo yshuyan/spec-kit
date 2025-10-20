@@ -278,6 +278,7 @@ If you encounter issues with an agent, please open an issue so we can refine the
 ## 📖 Learn more
 
 - **[Complete Spec-Driven Development Methodology](./spec-driven.md)** - Deep dive into the full process
+- **[Complete Spec-Driven Unit Testing Methodology](./unit_readme.md)** - Deep dive into the full unit testing process
 - **[Detailed Walkthrough](#-detailed-process)** - Step-by-step implementation guide
 
 ---
