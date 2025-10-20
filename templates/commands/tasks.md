@@ -1,8 +1,8 @@
 ---
 description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
 scripts:
-  sh: scripts/bash/check-prerequisites.sh --json
-  ps: scripts/powershell/check-prerequisites.ps1 -Json
+  sh: bash scripts/bash/check-prerequisites.sh --json
+  ps: pwsh scripts/powershell/check-prerequisites.ps1 -Json
 ---
 
 **IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**

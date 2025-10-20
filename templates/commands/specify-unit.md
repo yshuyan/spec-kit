@@ -1,8 +1,8 @@
 ---
 description: Create or update unit test specifications from a natural language test description.
 scripts:
-  sh: scripts/bash/create-unit-test.sh --json "{ARGS}"
-  ps: scripts/powershell/create-unit-test.ps1 -Json "{ARGS}"
+  sh: bash scripts/bash/create-unit-test.sh --json "$ARGUMENTS"
+  ps: pwsh scripts/powershell/create-unit-test.ps1 -Json "$ARGUMENTS"
 ---
 
 **IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**
@@ -17,8 +17,9 @@ The text the user typed after `/specify-unit` in the triggering message **is** t
 
 Given that unit test description, do this:
 
-1. **Run the script with the test description**: Execute `{SCRIPT} --json "<test_description>"` from repo root where `<test_description>` is what the user typed after /specify-unit. Parse the JSON output for BRANCH_NAME and TEST_SPEC_FILE. All file paths must be absolute.
-   **IMPORTANT**: You must pass the test description as an argument to the script. Example: If user said "test user authentication", run: `scripts/bash/create-unit-test.sh --json "test user authentication"`
+1. **Run the script with bash explicitly**: Execute `bash scripts/bash/create-unit-test.sh --json "<test_description>"` from repo root where `<test_description>` is what the user typed after /specify-unit. Parse the JSON output for BRANCH_NAME and TEST_SPEC_FILE. All file paths must be absolute.
+   **IMPORTANT**: You must pass the test description as an argument to the script. 
+   **Example**: If user said "test user authentication", run: `bash scripts/bash/create-unit-test.sh --json "test user authentication"`
    
 2. Load `.specify/templates/unit-test-template.md` to understand required sections.
 

@@ -1,8 +1,8 @@
 ---
 description: Execute the unit test implementation planning workflow using the unit test plan template to generate test design artifacts.
 scripts:
-  sh: scripts/bash/setup-unit-plan.sh --json
-  ps: scripts/powershell/setup-unit-plan.ps1 -Json
+  sh: bash scripts/bash/setup-unit-plan.sh --json
+  ps: pwsh scripts/powershell/setup-unit-plan.ps1 -Json
 ---
 
 **IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**

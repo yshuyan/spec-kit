@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2025-10-20
+
+### Fixed
+- **Critical Permission Fix**: Use `bash` prefix for all script commands to avoid permission errors
+  - Changed from `scripts/bash/xxx.sh` to `bash scripts/bash/xxx.sh`
+  - Eliminates "permission denied" errors completely
+  - Works regardless of file execution permissions
+  - Applies to all workflow commands
+
+### Changed
+- **Script Execution**: All commands now explicitly use `bash` or `pwsh` interpreters
+- **Reliability**: Scripts will run consistently across all systems
+
 ## [1.0.7] - 2025-10-20
 
 ### Added

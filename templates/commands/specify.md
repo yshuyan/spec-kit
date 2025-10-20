@@ -1,8 +1,8 @@
 ---
 description: Create or update the feature specification from a natural language feature description.
 scripts:
-  sh: scripts/bash/create-new-feature.sh --json "{ARGS}"
-  ps: scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
+  sh: bash scripts/bash/create-new-feature.sh --json "{ARGS}"
+  ps: pwsh scripts/powershell/create-new-feature.ps1 -Json "{ARGS}"
 ---
 
 **IMPORTANT: Generate all documentation in Chinese (简体中文). All sections, descriptions, and content should be written in Chinese.**
